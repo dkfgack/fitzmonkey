@@ -1,0 +1,50 @@
+# Pages CMS setup (https://pagescms.org) - lets Jack add photos and videos from his phone or computer.
+media:
+  input: media
+  output: /media
+  rename: safe
+  extensions: [jpg, jpeg, png, webp, heic, heif, mp4, mov, m4v]
+
+content:
+  - name: photos
+    label: Photos
+    type: file
+    path: data/photos.json
+    format: json
+    list: true
+    fields:
+      - name: image
+        label: Photo
+        type: image
+        required: true
+      - name: caption
+        label: Caption (optional)
+        type: string
+
+  - name: videos
+    label: Videos
+    type: file
+    path: data/videos.json
+    format: json
+    list: true
+    fields:
+      - name: video
+        label: Video file
+        type: file
+        required: true
+      - name: caption
+        label: Caption (optional)
+        type: string
+      - name: poster
+        label: Cover image (optional)
+        type: image
+
+  - name: settings
+    label: Site settings
+    type: file
+    path: data/site.json
+    format: json
+    fields:
+      - name: sheetCsvUrl
+        label: Shows spreadsheet link (Google Sheets > Publish to web > CSV)
+        type: string

@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FitzMonkey Live Music</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: faded beach-house. Sun-bleached sand background, washed navy text, muted coral and sea-glass accents. Single light theme by choice. Token names kept from v1: --ink = page bg, --sand = text. */
+:root {
+  --ink: #f1e9da;
+  --ink-2: #faf5eb;
+  --sand: #2f4152;
+  --sand-dim: #66737d;
+  --sunset: #b8664c;
+  --sea: #4d8075;
+  --line: #dccfb8;
+  --display: "Alfa Slab One", "Rockwell", Georgia, serif;
+  --body: "Work Sans", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+body { margin: 0; background: var(--ink); color: var(--sand); font-family: var(--body); font-size: 17px; line-height: 1.6; }
+a { color: var(--sea); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--sunset); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 400; line-height: 1.1; text-wrap: balance; margin: 0; }
+h2 { font-size: clamp(28px, 4.5vw, 44px); color: var(--sunset); }
+h3 { font-size: 20px; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+section { padding: 72px 0; border-top: 1px solid var(--line); }
+.lede { color: var(--sand-dim); max-width: 60ch; margin: 12px 0 0; }
+
+/* placeholder marker */
+.fill { background: rgba(184,102,76,.12); border-bottom: 2px dashed var(--sunset); padding: 0 3px; border-radius: 2px; }
+.draft { background: #e6d3bd; color: var(--sand); font-size: 14px; font-weight: 600; text-align: center; padding: 8px 16px; }
+
+/* nav */
+nav { position: sticky; top: 0; z-index: 10; background: rgba(241,233,218,.94); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
+nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 12px; padding-bottom: 12px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; font-family: var(--display); color: var(--sand); text-decoration: none; font-size: 20px; }
+.brand img { width: 40px; height: 39px; border-radius: 8px; }
+nav ul { list-style: none; display: flex; gap: 18px; margin: 0; padding: 0; flex-wrap: wrap; }
+nav ul a { color: var(--sand); text-decoration: none; font-weight: 600; font-size: 15px; }
+nav ul a:hover { color: var(--sunset); }
+nav ul a[aria-current="page"] { color: var(--sunset); box-shadow: inset 0 -2px 0 var(--sunset); padding-bottom: 2px; }
+[data-page][hidden] { display: none !important; }
+main > section.first { border-top: 0; }
+
+/* hero */
+.hero { padding: 64px 0 56px; border-top: 0; background: linear-gradient(180deg, #e3ece8 0%, var(--ink) 100%); }
+.hero .wrap > .kicker { text-align: center; margin-bottom: 28px; }
+.hero-row { display: flex; gap: 40px; align-items: stretch; }
+.hero-row > div { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+.kicker { font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--sea); font-size: 14px; margin: 0 0 10px; }
+.hero h1 { font-size: clamp(48px, 9vw, 104px); color: var(--sunset); text-shadow: none; }
+.hero .who { font-size: 24px; font-weight: 600; margin: 10px 0 0; }
+.hero .role { margin: 2px 0 0; color: var(--sand-dim); font-size: 15px; letter-spacing: .04em; }
+.hero p.sub { color: var(--sand-dim); max-width: 46ch; }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; margin: 22px 0 0; padding: 0; list-style: none; }
+.chips li { background: #fffaf2; border: 1px solid var(--sea); color: var(--sea); border-radius: 999px; padding: 4px 14px; font-weight: 600; font-size: 14px; }
+.cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+.btn { display: inline-block; font-family: var(--body); font-weight: 700; font-size: 16px; padding: 12px 22px; border-radius: 6px; border: 2px solid var(--sunset); cursor: pointer; text-decoration: none; }
+.btn.primary { background: var(--sunset); color: #fffaf2; }
+.btn.ghost { background: transparent; color: var(--sunset); }
+.btn:hover { filter: brightness(1.08); }
+.photo { margin: 0; flex: none; align-self: stretch; width: 380px; border-radius: 10px; overflow: hidden; border: 6px solid #fffaf2; box-shadow: 0 10px 30px rgba(47,65,82,.18); }
+.photo { position: relative; }
+.photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* shows */
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 28px 0 20px; }
+.tab { background: transparent; border: 1px solid var(--line); color: var(--sand); padding: 8px 16px; border-radius: 999px; font: 600 15px var(--body); cursor: pointer; }
+.tab[aria-pressed="true"] { background: var(--sea); border-color: var(--sea); color: #fffaf2; }
+.shows { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.show { display: grid; grid-template-columns: 84px 1fr auto; gap: 18px; align-items: center; background: var(--ink-2); border: 1px solid var(--line); border-left: 4px solid var(--sea); border-radius: 8px; padding: 14px 18px; }
+.show[data-region="pa"] { border-left-color: #8aa3b8; }
+.show[data-region="lbi"] { border-left-color: var(--sea); }
+.show[data-region="fl"] { border-left-color: var(--sunset); }
+.date { font-family: var(--display); text-align: center; line-height: 1; font-variant-numeric: tabular-nums; }
+.date .m { font-size: 14px; color: var(--sand-dim); display: block; }
+.date .d { font-size: 32px; display: block; margin-top: 4px; }
+.show .venue { font-weight: 700; font-size: 18px; }
+.show .meta { color: var(--sand-dim); font-size: 15px; }
+.tag { font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 4px; background: var(--ink); border: 1px solid var(--line); white-space: nowrap; }
+.empty { color: var(--sand-dim); padding: 16px 0; }
+
+/* regions */
+.regions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 28px; }
+.region { background: var(--ink-2); border: 1px solid var(--line); border-radius: 10px; padding: 22px; border-top: 5px solid var(--sea); }
+.region.pa { border-top-color: #8aa3b8; }
+.region.fl { border-top-color: var(--sunset); }
+.region p { margin: 8px 0 0; color: var(--sand-dim); font-size: 15px; }
+.region .when { color: var(--sand); font-weight: 600; }
+
+/* lineups */
+.lineups { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 28px; }
+.lineup { border: 1px solid var(--line); border-radius: 10px; padding: 22px; }
+.lineup .size { font-family: var(--display); font-size: 40px; color: var(--sea); line-height: 1; }
+.lineup h3 { margin-top: 10px; }
+.lineup p { color: var(--sand-dim); font-size: 15px; margin: 8px 0 0; }
+
+/* about / listen */
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+.links { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 10px; }
+.links a { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--ink-2); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; color: var(--sand); text-decoration: none; font-weight: 600; }
+.links a:hover { border-color: var(--sunset); }
+.links span.h { color: var(--sand-dim); font-weight: 400; font-size: 14px; }
+.song-tools { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin: 24px 0 18px; }
+.song-tools .search { flex: 1 1 280px; max-width: 420px; }
+.groups { display: grid; gap: 10px; }
+.group { background: var(--ink-2); border: 1px solid var(--line); border-radius: 8px; }
+.group > summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 18px; font-family: var(--display); font-size: 19px; color: var(--sand); }
+.group > summary::-webkit-details-marker { display: none; }
+.group > summary::after { content: "+"; font-family: var(--body); font-weight: 700; font-size: 22px; color: var(--sunset); width: 20px; text-align: center; }
+.group[open] > summary::after { content: "\2013"; }
+.group > summary .n { margin-left: auto; font-family: var(--body); font-size: 14px; font-weight: 600; color: var(--sand-dim); }
+.group > summary:hover { color: var(--sunset); }
+.group.orig { border-left: 4px solid var(--sea); }
+.songlist { list-style: none; margin: 0; padding: 0 18px 16px; columns: 3 240px; column-gap: 28px; }
+.songlist li { break-inside: avoid; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.songlist .t { font-weight: 600; }
+.songlist .a { color: var(--sand-dim); font-size: 14px; display: block; }
+
+
+/* booking */
+form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 24px; }
+form .full { grid-column: 1 / -1; }
+label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+input, select, textarea { width: 100%; font: 16px var(--body); color: var(--sand); background: var(--ink-2); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; }
+textarea { min-height: 110px; resize: vertical; }
+.out { margin-top: 18px; background: var(--ink-2); border: 1px solid var(--sea); border-radius: 8px; padding: 18px; display: none; }
+.out.show-it { display: block; }
+.out pre { white-space: pre-wrap; font: 15px/1.5 var(--body); margin: 10px 0 14px; color: var(--sand); }
+.status { color: var(--sea); font-weight: 600; margin-left: 10px; }
+.contact { list-style: none; padding: 0; margin: 18px 0 0; display: flex; gap: 12px 28px; flex-wrap: wrap; }
+.contact .k { display: block; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--sand-dim); }
+.contact a { font-size: 19px; font-weight: 600; color: var(--sand); }
+label .opt { font-weight: 400; color: var(--sand-dim); }
+.err { color: #a23b2a; font-weight: 600; font-size: 14px; margin: 6px 0 0; }
+
+.sub-h { margin: 32px 0 14px; font-size: 22px; }
+.vids { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; align-items: start; }
+.vid { margin: 0; background: #1d2a36; border-radius: 10px; overflow: hidden; border: 6px solid #fffaf2; box-shadow: 0 6px 18px rgba(47,65,82,.14); }
+.vid figcaption, .ph-cap { font-size: 14px; color: var(--sand-dim); padding: 8px 4px 2px; background: #fffaf2; }
+.vid video { display: block; width: 100%; aspect-ratio: 16/9; background: #1d2a36; object-fit: contain; }
+.vid.v video { aspect-ratio: 9/16; max-height: 560px; }
+.photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.ph { padding: 0; border: 6px solid #fffaf2; border-radius: 10px; overflow: hidden; cursor: zoom-in; background: var(--ink-2); box-shadow: 0 6px 18px rgba(47,65,82,.14); aspect-ratio: 4/5; }
+.ph img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .25s; }
+.ph:hover img { transform: scale(1.04); }
+.lightbox { position: fixed; inset: 0; z-index: 50; background: rgba(20,28,36,.92); display: flex; align-items: center; justify-content: center; padding: 48px 16px; }
+.lightbox[hidden] { display: none; }
+.lightbox img { max-width: min(1100px, 100%); max-height: 100%; object-fit: contain; border-radius: 6px; }
+.lb-close, .lb-nav { position: absolute; background: rgba(255,250,242,.12); color: #fffaf2; border: 0; border-radius: 999px; width: 48px; height: 48px; font-size: 32px; line-height: 1; cursor: pointer; }
+.lb-close { top: 14px; right: 14px; }
+.lb-prev { left: 14px; top: 50%; transform: translateY(-50%); }
+.lb-next { right: 14px; top: 50%; transform: translateY(-50%); }
+.lb-close:hover, .lb-nav:hover { background: rgba(255,250,242,.25); }
+footer { border-top: 1px solid var(--line); padding: 28px 0 40px; color: var(--sand-dim); font-size: 14px; }
+footer .wrap { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.foot-brand { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.foot-brand img { border-radius: 8px; }
+
+@media (max-width: 820px) {
+  .two { grid-template-columns: 1fr; }
+  .hero-row { flex-direction: column; }
+  .regions, .lineups { grid-template-columns: 1fr; }
+  .photo { width: 100% !important; max-width: 420px; aspect-ratio: 1/1; align-self: center; }
+}
+@media (max-width: 520px) {
+  form { grid-template-columns: 1fr; }
+  .show { grid-template-columns: 64px 1fr; }
+  .show .tag { grid-column: 2; justify-self: start; }
+  
+  nav ul { gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="draft">Draft site: anything <span style="text-decoration:underline dashed">highlighted with a dashed underline</span> is placeholder text or a sample to replace with real info.</div>
+
+<nav aria-label="Main">
+  <div class="wrap">
+    <a class="brand" href="#home">
+      <img src="images/logo-face.jpg" alt="" width="40" height="39">
+      FitzMonkey
+    </a>
+    <ul>
+      <li><a href="#home" data-nav="home">Home</a></li>
+      <li><a href="#shows" data-nav="shows">Shows</a></li>
+      <li><a href="#songs" data-nav="songs">Songs</a></li>
+      <li><a href="#media" data-nav="media">Photos &amp; Video</a></li>
+      <li><a href="#about" data-nav="about">About</a></li>
+      <li><a href="#book" data-nav="book">Book</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero" id="top" data-page="home">
+  <div class="wrap">
+    <p class="kicker">Live music &middot; PA &middot; Jersey Shore &middot; South Florida</p>
+    <div class="hero-row">
+    <figure class="photo">
+      <img src="images/jack.jpg" alt="Jack Fitzgeorge in a straw fedora and white glasses, leaning on his acoustic guitar" width="1000" height="1000">
+    </figure>
+    <div>
+      <h1>FitzMonkey</h1>
+      <p class="who">Jack Fitzgeorge + Friends</p>
+      <p class="role">Musician / Singer / Songwriter</p>
+      <p class="sub"><span class="fill">Solo acoustic sets and full-band nights. Covers you can sing along to, plus a few originals.</span></p>
+      <ul class="chips" aria-label="Where FitzMonkey plays">
+        <li>Southeastern PA</li>
+        <li>Long Beach Island, NJ</li>
+        <li>Fort Lauderdale, FL</li>
+      </ul>
+      <div class="cta">
+        <a class="btn primary" href="#shows">See upcoming shows</a>
+        <a class="btn ghost" href="#book">Book FitzMonkey</a>
+        <a class="btn ghost" href="https://venmo.com/u/Fitzmonkey">Tip on Venmo</a>
+      </div>
+    </div>
+    
+  </div>
+</header>
+
+<main>
+<section id="shows" data-page="shows">
+  <div class="wrap">
+    <h2>Upcoming Shows</h2>
+    <p class="lede">Pick a region to see what's coming up near you.</p>
+    <div class="tabs" role="group" aria-label="Filter shows by region">
+      <button class="tab" type="button" data-filter="all" aria-pressed="true">All</button>
+      <button class="tab" type="button" data-filter="pa" aria-pressed="false">SE Pennsylvania</button>
+      <button class="tab" type="button" data-filter="lbi" aria-pressed="false">LBI / Jersey Shore</button>
+      <button class="tab" type="button" data-filter="fl" aria-pressed="false">Fort Lauderdale</button>
+    </div>
+    <ul class="shows" id="showList"></ul>
+    <p class="empty" id="showsLoading">Loading shows&hellip;</p>
+    <p class="empty" id="noShows" hidden>No upcoming dates posted here yet. Follow <a href="https://www.facebook.com/Fitzmonkey77">FitzMonkey on Facebook</a> for the latest, or <a href="#book">book a show</a>.</p>
+  </div>
+</section>
+
+<section id="regions" data-page="shows">
+  <div class="wrap">
+    <h2>Where to Catch Him</h2>
+    <div class="regions">
+      <div class="region pa">
+        <h3>Southeastern PA</h3>
+        <p class="when"><span class="fill">Season: year-round?</span></p>
+        <p>Regular spots: The Ram, Perkasie</p>
+      </div>
+      <div class="region lbi">
+        <h3>Long Beach Island, NJ</h3>
+        <p class="when"><span class="fill">Season: summer?</span></p>
+        <p>Regular spots: Ship Bottom Brewery, The Local</p>
+      </div>
+      <div class="region fl">
+        <h3>Fort Lauderdale, FL</h3>
+        <p class="when"><span class="fill">Season: winter?</span></p>
+        <p><span class="fill">Regular spots: venue names, Las Olas, the beach, etc.</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="lineups" data-page="home">
+  <div class="wrap">
+    <h2>Solo or Jack + Friends</h2>
+    <p class="lede">FitzMonkey scales to the room. A quiet patio, a packed bar, or a backyard party.</p>
+    <div class="lineups">
+      <div class="lineup">
+        <div class="size">1</div>
+        <h3>Solo</h3>
+        <p><span class="fill">Acoustic guitar and vocals. Fits patios, brunches, small rooms.</span></p>
+      </div>
+      <div class="lineup">
+        <div class="size">2&ndash;3</div>
+        <h3>Duo / Trio</h3>
+        <p><span class="fill">Adds a second player or two. Instruments: ___</span></p>
+      </div>
+      <div class="lineup">
+        <div class="size">4+</div>
+        <h3>Full Band</h3>
+        <p><span class="fill">Full lineup for bigger bars, events and parties. Members: ___</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="media" data-page="media">
+  <div class="wrap">
+    <h2>Photos &amp; Video</h2>
+    <p class="lede">Live from the shore, the city and everywhere in between.</p>
+    <h3 class="sub-h">Video</h3>
+    <div class="vids" id="vidGrid"><p class="empty">Loading videos&hellip;</p></div>
+    <h3 class="sub-h">Photos</h3>
+    <div class="photos" id="photoGrid"><p class="empty">Loading photos&hellip;</p></div>
+  </div>
+</section>
+
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <button type="button" class="lb-close" id="lbClose" aria-label="Close">&times;</button>
+  <button type="button" class="lb-nav lb-prev" id="lbPrev" aria-label="Previous photo">&lsaquo;</button>
+  <img id="lbImg" alt="">
+  <button type="button" class="lb-nav lb-next" id="lbNext" aria-label="Next photo">&rsaquo;</button>
+</div>
+
+<section id="about" data-page="about">
+  <div class="wrap">
+    <h2>About Jack</h2>
+    <p class="lede"><span class="fill">Bio goes here: where Jack is from, how long he's been playing, how the FitzMonkey name came about, and what a night at a FitzMonkey show feels like. Two or three short paragraphs works well.</span></p>
+  </div>
+</section>
+
+<section id="songs" data-page="songs">
+  <div class="wrap">
+    <h2>Song List</h2>
+    <p class="lede"><span id="songCount"></span> songs, including <span id="origCount"></span> Jack Fitzgeorge originals. Updated 11/2026.</p>
+    <div class="song-tools">
+      <div class="search"><label for="songSearch">Search songs or artists</label><input id="songSearch" type="search" placeholder="Try Buffett, Beatles, Neil Young..."></div>
+      <button class="tab" type="button" id="openAll" aria-pressed="false">Open all</button>
+    </div>
+    <div class="groups" id="songGroups"></div>
+    <p class="empty" id="noSongs" hidden>No match. Ask Jack at the show, he might know it anyway.</p>
+  </div>
+</section>
+
+<section id="listen" data-page="about">
+  <div class="wrap">
+    <h2>Follow &amp; Tip</h2>
+    <ul class="links">
+      <li><a href="https://www.instagram.com/fitzmonkeyyy">Instagram <span class="h">@fitzmonkeyyy</span></a></li>
+      <li><a href="https://www.facebook.com/Fitzmonkey77">Facebook <span class="h">/Fitzmonkey77</span></a></li>
+      <li><a href="https://venmo.com/u/Fitzmonkey">Venmo tip jar <span class="h">@Fitzmonkey</span></a></li>
+    </ul>
+  </div>
+</section>
+
+<section id="book" data-page="book">
+  <div class="wrap">
+    <h2>Book FitzMonkey</h2>
+    <p class="lede">Bars, restaurants, private parties and events in all three areas. Fill this out to send Jack a booking request, or reach him directly.</p>
+    <ul class="contact">
+      <li><span class="k">Email</span> <a href="mailto:mrfitz77@hotmail.com">mrfitz77@hotmail.com</a></li>
+      <li><span class="k">Call / text</span> <a href="tel:+12672541136">267-254-1136</a></li>
+    </ul>
+    <form id="bookForm" novalidate>
+      <div><label for="f-name">Your name</label><input id="f-name" autocomplete="name" required></div>
+      <div><label for="f-contact">Your email or phone</label><input id="f-contact" autocomplete="email" required></div>
+      <div><label for="f-region">Area</label>
+        <select id="f-region">
+          <option>Southeastern PA</option><option>LBI / Jersey Shore</option><option>Fort Lauderdale area</option><option>Somewhere else</option>
+        </select></div>
+      <div><label for="f-type">Lineup</label>
+        <select id="f-type">
+          <option>Solo</option><option>Jack + Friends (duo / trio)</option><option>Jack + Friends (full band)</option><option>Not sure yet</option>
+        </select></div>
+      <div><label for="f-date">Date</label><input id="f-date" type="date"></div>
+      <div><label for="f-time">Start time <span class="opt">(optional)</span></label><input id="f-time" type="time"></div>
+      <div><label for="f-length">Length <span class="opt">(optional)</span></label><select id="f-length"><option>Not sure</option><option>1 hour</option><option>2 hours</option><option>3 hours</option><option>4+ hours</option></select></div>
+      <div class="full"><label for="f-venue">Venue or event</label><input id="f-venue" placeholder="Bar name, wedding, birthday..."></div>
+      <div class="full"><label for="f-notes">Details <span class="opt">(optional)</span></label><textarea id="f-notes" placeholder="Times, crowd size, indoor/outdoor, anything else"></textarea></div>
+      <div class="full"><p class="err" id="formErr" hidden>Please add your name and an email or phone so Jack can get back to you.</p><button class="btn primary" type="submit">Send booking request</button></div>
+    </form>
+    <div class="out" id="out" aria-live="polite">
+      <strong>Your request is ready.</strong> Your email app should open with it filled in. If it doesn't, copy the message below and send it to <strong>mrfitz77@hotmail.com</strong> or text Jack at <strong>267-254-1136</strong>.
+      <pre id="outText"></pre>
+      <a class="btn primary" id="mailBtn" href="mailto:mrfitz77@hotmail.com">Open in email</a> <button class="btn ghost" type="button" id="copyBtn">Copy message</button><span class="status" id="copyStatus"></span>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="foot-brand"><img src="images/logo-full.jpg" alt="FitzMonkey logo" width="72" height="72"> &copy; 2026 FitzMonkey &middot; Jack Fitzgeorge &middot; <a href="https://venmo.com/u/Fitzmonkey">Tip on Venmo</a></span>
+    <span>Booking: <a href="mailto:mrfitz77@hotmail.com">mrfitz77@hotmail.com</a> &middot; <a href="tel:+12672541136">267-254-1136</a></span>
+  </div>
+</footer>
+
+<script>
+// Multi-page: each nav item is its own page, addressed by #name
+(function () {
+  const PAGES = ["home", "shows", "songs", "media", "about", "book"];
+  const blocks = document.querySelectorAll("[data-page]");
+  function show() {
+    const h = location.hash.slice(1);
+    let page = PAGES.includes(h) ? h : "home", target = null;
+    if (!PAGES.includes(h) && h) {
+      const el = document.getElementById(h);
+      if (el) { const host = el.closest("[data-page]"); if (host) { page = host.dataset.page; target = el; } }
+    }
+    let first = true;
+    blocks.forEach(b => {
+      const on = b.dataset.page === page;
+      b.hidden = !on;
+      b.classList.toggle("first", on && first && b.tagName === "SECTION");
+      if (on) first = false;
+    });
+    document.querySelectorAll("[data-nav]").forEach(a => {
+      if (a.dataset.nav === page) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+    });
+    if (target && page !== h) target.scrollIntoView(); else window.scrollTo(0, 0);
+    const names = { home: "", shows: "Shows", songs: "Song List", media: "Photos & Video", about: "About", book: "Booking" };
+    document.title = names[page] ? "FitzMonkey | " + names[page] : "FitzMonkey Live Music";
+    if (typeof sync === "function") sync();
+  }
+  window.addEventListener("hashchange", show);
+  show();
+})();
+
+// Photos & videos come from data/photos.json and data/videos.json (edited in Pages CMS)
+const asUrl = p => String(p || "").replace(/^\/+/, "");
+async function loadJSON(path) {
+  const r = await fetch(path + "?v=" + Date.now(), { cache: "no-store" });
+  if (!r.ok) throw new Error(path + " " + r.status);
+  return r.json();
+}
+(async function media() {
+  const vg = document.getElementById("vidGrid"), pg = document.getElementById("photoGrid");
+  // newest added (bottom of the list in the editor) shows first
+  let videos = [], photos = [];
+  try { videos = (await loadJSON("data/videos.json")).filter(v => v && v.video).reverse(); } catch (e) {}
+  try { photos = (await loadJSON("data/photos.json")).filter(p => p && p.image).reverse(); } catch (e) {}
+
+  vg.innerHTML = "";
+  if (!videos.length) vg.innerHTML = '<p class="empty">Videos coming soon.</p>';
+  videos.forEach((v, k) => {
+    const fig = document.createElement("figure"); fig.className = "vid";
+    const el = document.createElement("video");
+    el.controls = true; el.playsInline = true; el.preload = v.poster ? "none" : "metadata";
+    if (v.poster) el.poster = asUrl(v.poster);
+    el.src = asUrl(v.video) + (v.poster ? "" : "#t=0.1");
+    el.setAttribute("aria-label", v.caption || "Live clip " + (k + 1));
+    el.addEventListener("loadedmetadata", () => { if (el.videoHeight > el.videoWidth) fig.classList.add("v"); });
+    fig.appendChild(el);
+    if (v.caption) { const c = document.createElement("figcaption"); c.textContent = v.caption; fig.appendChild(c); }
+    vg.appendChild(fig);
+  });
+  const vids = [...vg.querySelectorAll("video")];
+  vids.forEach(v => v.addEventListener("play", () => vids.forEach(o => { if (o !== v) o.pause(); })));
+  window.addEventListener("hashchange", () => vids.forEach(v => v.pause()));
+
+  pg.innerHTML = "";
+  if (!photos.length) pg.innerHTML = '<p class="empty">Photos coming soon.</p>';
+  photos.forEach(p => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "ph";
+    b.dataset.full = asUrl(p.image); b.dataset.alt = p.caption || "FitzMonkey live photo";
+    const im = document.createElement("img"); im.src = asUrl(p.image); im.alt = b.dataset.alt; im.loading = "lazy";
+    b.appendChild(im); pg.appendChild(b);
+  });
+
+  // Photo viewer
+  const items = [...pg.querySelectorAll(".ph")], lb = document.getElementById("lightbox"), img = document.getElementById("lbImg");
+  let cur = 0, opener = null;
+  const showAt = k => { cur = (k + items.length) % items.length; img.src = items[cur].dataset.full; img.alt = items[cur].dataset.alt; };
+  const close = () => { lb.hidden = true; document.body.style.overflow = ""; if (opener) opener.focus(); };
+  items.forEach((b, k) => b.addEventListener("click", () => { opener = b; showAt(k); lb.hidden = false; document.body.style.overflow = "hidden"; document.getElementById("lbClose").focus(); }));
+  document.getElementById("lbClose").addEventListener("click", close);
+  document.getElementById("lbPrev").addEventListener("click", () => showAt(cur - 1));
+  document.getElementById("lbNext").addEventListener("click", () => showAt(cur + 1));
+  lb.addEventListener("click", e => { if (e.target === lb) close(); });
+  document.addEventListener("keydown", e => {
+    if (lb.hidden) return;
+    if (e.key === "Escape") close(); else if (e.key === "ArrowLeft") showAt(cur - 1); else if (e.key === "ArrowRight") showAt(cur + 1);
+  });
+})();
+
+// Keep the hero photo square and exactly as tall as the info beside it
+(function () {
+  const fig = document.querySelector(".photo"), txt = document.querySelector(".hero-row > div");
+  const sync = () => {
+    if (getComputedStyle(fig.parentElement).flexDirection === "column") { fig.style.width = ""; return; }
+    fig.style.width = Math.round(txt.getBoundingClientRect().height) + "px";
+  };
+  sync();
+  if ("ResizeObserver" in window) new ResizeObserver(sync).observe(txt);
+  window.addEventListener("resize", sync);
+  if (document.fonts) document.fonts.ready.then(sync);
+})();
+
+// Upcoming shows come from a Google Sheet published as CSV (link saved in data/site.json).
+// Columns: Date | Time | Venue | Town | Area | Lineup   (Area: PA, LBI or Florida)
+const REGION_NAMES = { pa: "SE Pennsylvania", lbi: "LBI / Jersey Shore", fl: "Fort Lauderdale" };
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const list = document.getElementById("showList");
+const none = document.getElementById("noShows");
+const loadingMsg = document.getElementById("showsLoading");
+let SHOWS = [], currentFilter = "all";
+
+function parseCSV(text) {
+  const rows = []; let row = [], field = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"' && text[i + 1] === '"') { field += '"'; i++; }
+      else if (c === '"') q = false;
+      else field += c;
+    } else if (c === '"') q = true;
+    else if (c === ",") { row.push(field); field = ""; }
+    else if (c === "\n" || c === "\r") {
+      if (c === "\r" && text[i + 1] === "\n") i++;
+      row.push(field); rows.push(row); row = []; field = "";
+    } else field += c;
+  }
+  if (field !== "" || row.length) { row.push(field); rows.push(row); }
+  return rows.filter(r => r.some(x => x.trim() !== ""));
+}
+function parseDate(v) {
+  v = String(v || "").trim(); let m;
+  if ((m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) return new Date(+m[1], +m[2] - 1, +m[3]);
+  if ((m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/))) { let y = +m[3]; if (y < 100) y += 2000; return new Date(y, +m[1] - 1, +m[2]); }
+  const d = new Date(v); return isNaN(d) ? null : new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+function regionOf(area, town) {
+  const t = (area + " " + town).toLowerCase();
+  if (/\b(fl|florida|lauderdale|broward|miami|boca)\b/.test(t)) return "fl";
+  if (/\b(lbi|nj|new jersey|jersey|shore|ship bottom|beach haven|surf city|long beach)\b/.test(t)) return "lbi";
+  if (/\b(pa|penn|pennsylvania|philly|philadelphia|perkasie|bucks)\b/.test(t)) return "pa";
+  return "";
+}
+function render(filter) {
+  currentFilter = filter;
+  list.innerHTML = "";
+  const rows = SHOWS.filter(s => filter === "all" || s.region === filter);
+  rows.forEach(s => {
+    const li = document.createElement("li");
+    li.className = "show"; if (s.region) li.dataset.region = s.region;
+    const dt = document.createElement("div"); dt.className = "date";
+    dt.innerHTML = '<span class="m"></span><span class="d"></span>';
+    dt.firstChild.textContent = DAYS[s.date.getDay()] + " · " + MONTHS[s.date.getMonth()];
+    dt.lastChild.textContent = s.date.getDate();
+    const info = document.createElement("div");
+    const vn = document.createElement("div"); vn.className = "venue"; vn.textContent = s.venue || "TBA";
+    const meta = document.createElement("div"); meta.className = "meta";
+    meta.textContent = [s.town, s.time, s.date.getFullYear() !== new Date().getFullYear() ? s.date.getFullYear() : ""].filter(Boolean).join(" · ");
+    info.append(vn, meta);
+    li.append(dt, info);
+    if (s.lineup) { const tg = document.createElement("span"); tg.className = "tag"; tg.textContent = s.lineup; li.appendChild(tg); }
+    list.appendChild(li);
+  });
+  none.hidden = rows.length > 0;
+}
+document.querySelectorAll("#shows .tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#shows .tab").forEach(b => b.setAttribute("aria-pressed", "false"));
+    btn.setAttribute("aria-pressed", "true");
+    render(btn.dataset.filter);
+  });
+});
+(async function loadShows() {
+  try {
+    const cfg = await loadJSON("data/site.json");
+    if (!cfg.sheetCsvUrl) throw new Error("No sheet link yet");
+    const r = await fetch(cfg.sheetCsvUrl, { cache: "no-store" });
+    if (!r.ok) throw new Error("Sheet " + r.status);
+    const rows = parseCSV(await r.text());
+    const head = rows.shift().map(h => h.trim().toLowerCase());
+    const col = name => head.findIndex(h => h.startsWith(name));
+    const C = { date: col("date"), time: col("time"), venue: col("venue"), town: col("town"), area: col("area"), lineup: col("lineup") };
+    const get = (r, k) => C[k] >= 0 ? String(r[C[k]] || "").trim() : "";
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    SHOWS = rows.map(r => ({ date: parseDate(get(r, "date")), time: get(r, "time"), venue: get(r, "venue"), town: get(r, "town"), lineup: get(r, "lineup"), region: regionOf(get(r, "area"), get(r, "town")) }))
+      .filter(s => s.date && s.date >= today)
+      .sort((a, b) => a.date - b.date);
+  } catch (e) { SHOWS = []; }
+  loadingMsg.hidden = true;
+  render(currentFilter);
+})();
+
+document.getElementById("bookForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const v = id => document.getElementById(id).value.trim();
+  const err = document.getElementById("formErr");
+  if (!v("f-name") || !v("f-contact")) { err.hidden = false; return; }
+  err.hidden = true;
+  const text =
+    "Hi Jack, I'd like to book FitzMonkey.\n\n" +
+    "Name: " + v("f-name") + "\n" +
+    "Contact: " + v("f-contact") + "\n" +
+    "Area: " + v("f-region") + "\n" +
+    "Lineup: " + v("f-type") + "\n" +
+    "Date: " + (v("f-date") || "-") + "\n" +
+    "Start time: " + (v("f-time") || "-") + "\n" +
+    "Length: " + v("f-length") + "\n" +
+    "Venue/event: " + (v("f-venue") || "-") + "\n\n" +
+    "Details: " + (v("f-notes") || "-");
+  const subject = "Booking request: " + (v("f-venue") || v("f-name")) + (v("f-date") ? " on " + v("f-date") : "");
+  const href = "mailto:mrfitz77@hotmail.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(text);
+  document.getElementById("mailBtn").href = href;
+  document.getElementById("outText").textContent = text;
+  const out = document.getElementById("out");
+  out.classList.add("show-it");
+  document.getElementById("copyStatus").textContent = "";
+  out.scrollIntoView({ block: "nearest" });
+  try { window.location.href = href; } catch (x) {}
+});
+document.getElementById("copyBtn").addEventListener("click", async () => {
+  const st = document.getElementById("copyStatus");
+  try { await navigator.clipboard.writeText(document.getElementById("outText").textContent); st.textContent = "Copied"; }
+  catch (err) { st.textContent = "Select the text above and copy it manually"; }
+});
+
+// Song list from Jack's Master Song List (11/2026), grouped by style
+const SONGS = [["Across the Universe", "The Beatles", "The Beatles"], ["Act Naturally", "The Beatles", "The Beatles"], ["After the Goldrush", "Neil Young", "Classic Rock"], ["All My Loving", "The Beatles", "The Beatles"], ["Allison", "Elvis Costello", "Classic Rock"], ["American Nights", "Zach Bryan", "Country"], ["American Pie", "Don McLean", "Singer-Songwriters & Folk"], ["And I Love Her", "The Beatles", "The Beatles"], ["And It Stoned Me", "Van Morrison", "Classic Rock"], ["Angie", "The Rolling Stones", "Classic Rock"], ["Annie's Song", "John Denver", "Singer-Songwriters & Folk"], ["Bad Case of Loving You", "Robert Palmer", "Classic Rock"], ["Bad Moon Rising", "Creedence Clearwater Revival", "Classic Rock"], ["Banana Pancakes", "Jack Johnson", "Beach & Island"], ["The Banjo Song", "Mumford and Sons", "Singer-Songwriters & Folk"], ["A Bar Song (Tipsy)", "Shaboozey", "Country"], ["Beautiful Barbados", "The Merrymen", "Beach & Island"], ["Before He Cheats", "Carrie Underwood", "Country"], ["Before the Deluge", "Jackson Browne", "Singer-Songwriters & Folk"], ["Behind a Wall of Sleep", "The Smithereens", "Classic Rock"], ["Behind Blue Eyes", "The Who", "Classic Rock"], ["Betty", "Taylor Swift", "90s to Today"], ["Black Tornado", "Dan Bern", "Singer-Songwriters & Folk"], ["Blank Space / Stand By Me", "Imagine Dragons", "90s to Today"], ["Blister in the Sun", "Violent Femmes", "90s to Today"], ["Blue Suede Shoes", "Elvis", "Oldies"], ["Born to Run", "Bruce Springsteen", "Classic Rock"], ["Boulevard of Broken Dreams", "Green Day", "90s to Today"], ["Brandy You're a Fine Girl", "The Looking Glass", "Oldies"], ["Brown Eyed Girl", "Van Morrison", "Classic Rock"], ["Build Me Up Buttercup", "The Foundations", "Oldies"], ["Buy Me a Boat", "Chris Janson", "Country"], ["Careful Man", "Jim Croce", "Singer-Songwriters & Folk"], ["Carolina On My Mind", "James Taylor", "Singer-Songwriters & Folk"], ["Carpetbaggers", "Jenny Lewis & Elvis Costello", "Singer-Songwriters & Folk"], ["Cat's in the Cradle", "Harry Chapin", "Singer-Songwriters & Folk"], ["Catch My Disease", "Ben Lee", "Singer-Songwriters & Folk"], ["Celluloid Heroes", "The Kinks", "Classic Rock"], ["Changes in Latitudes Changes in Attitudes", "Jimmy Buffett", "Beach & Island"], ["Cheeseburger in Paradise", "Jimmy Buffett", "Beach & Island"], ["Chicken Fried", "Zac Brown", "Country"], ["City of New Orleans", "Arlo Guthrie", "Singer-Songwriters & Folk"], ["Come Monday", "Jimmy Buffett", "Beach & Island"], ["Country Girl Shake It For Me", "Luke Bryan", "Country"], ["Country Roads", "John Denver", "Singer-Songwriters & Folk"], ["Cover of the Rolling Stone", "Dr. Hook & the Medicine Show", "Classic Rock"], ["Cruel To Be Kind", "Nick Lowe", "Classic Rock"], ["Daniel", "Elton John", "Classic Rock"], ["A Day in the Life", "The Beatles", "The Beatles"], ["Daydream Believer", "The Monkees", "Oldies"], ["Dead Flowers", "The Rolling Stones", "Classic Rock"], ["Dead Skunk", "Loudon Wainwright", "Singer-Songwriters & Folk"], ["Death By a Thousand Cuts", "Taylor Swift", "90s to Today"], ["Desperado", "The Eagles", "Classic Rock"], ["Don't Let the Old Man In", "Toby Keith", "Country"], ["Don't Look Back In Anger", "Oasis", "90s to Today"], ["Don't Stop Me Now", "Queen", "Classic Rock"], ["Down By the River", "Neil Young", "Classic Rock"], ["Down by the Water", "The Decemberists", "Singer-Songwriters & Folk"], ["Drift Away", "Dobie Gray", "Oldies"], ["Drunk in Church", "Jack Fitzgeorge w/George Kelly", "Jack Fitzgeorge Originals"], ["Drunk on a Plane", "Dierks Bentley", "Country"], ["Eight Days a Week", "The Beatles", "The Beatles"], ["Ex's and Oh's", "Elle King", "90s to Today"], ["Excitable Boy", "Warren Zevon", "Singer-Songwriters & Folk"], ["Falling Slowly", "Glen Hansard", "Singer-Songwriters & Folk"], ["Father and Son", "Cat Stevens", "Singer-Songwriters & Folk"], ["Fire and Rain", "James Taylor", "Singer-Songwriters & Folk"], ["Five Years", "David Bowie", "Classic Rock"], ["Flowers", "Miley Cyrus", "90s to Today"], ["Follow You Follow Me", "Genesis", "Classic Rock"], ["For a Dancer", "Jackson Browne", "Singer-Songwriters & Folk"], ["For What It’s Worth", "Buffalo Springfield", "Classic Rock"], ["Four Strong Winds", "Neil Young", "Classic Rock"], ["Free Bird", "Lynyrd Skynyrd", "Classic Rock"], ["Friend of the Devil", "The Grateful Dead", "Classic Rock"], ["The Gambler", "Kenny Rogers", "Country"], ["Garden Party", "Ricky Nelson", "Oldies"], ["Getting You Home", "Chris Young", "Country"], ["Gimme Three Steps", "Lynyrd Skynyrd", "Classic Rock"], ["Go Your Own Way", "Fleetwood Mac", "Classic Rock"], ["Going to California", "Led Zeppelin", "Classic Rock"], ["Golden Slumbers Carry That Weight", "Jackson Browne", "Singer-Songwriters & Folk"], ["Good Directions", "Billy Currington", "Country"], ["Hallelujah", "Leonard Cohen", "Singer-Songwriters & Folk"], ["Happy Together", "The Turtles", "Oldies"], ["He Went to Paris", "Jimmy Buffett", "Beach & Island"], ["He'll Have To Go", "Jim Reeves", "Country"], ["Heading South", "Zach Bryan", "Country"], ["Heart of Gold", "Neil Young", "Classic Rock"], ["Hello Goodbye", "The Beatles", "The Beatles"], ["Hero", "Family of the Year", "Singer-Songwriters & Folk"], ["Hey Jude", "The Beatles", "The Beatles"], ["Home", "Phillip Phillips", "Singer-Songwriters & Folk"], ["Hotel California", "The Eagles", "Classic Rock"], ["Humble And Kind", "Tim McGraw", "Country"], ["I Got a Name", "Jim Croce", "Singer-Songwriters & Folk"], ["I Know", "Jack Fitzgeorge", "Jack Fitzgeorge Originals"], ["I Love This Bar", "Toby Keith", "Country"], ["I Need You", "Dan Bern", "Singer-Songwriters & Folk"], ["I Saw Her Standing There", "The Beatles", "The Beatles"], ["I Should Have Known Better", "The Beatles", "The Beatles"], ["I Started A Joke", "Bee Gees", "Oldies"], ["I Think I Love You", "The Partridge Family", "Oldies"], ["I Wanna Be Sedated", "The Ramones", "Classic Rock"], ["I Wanna Hold Your Hand", "The Beatles", "The Beatles"], ["I Want It That Way", "Backstreet Boys", "90s to Today"], ["I Will Follow You Into the Dark", "Death Cab for Cutie", "90s to Today"], ["I Will Wait", "Mumford and Sons", "Singer-Songwriters & Folk"], ["I'll Be There For You", "Bon Jovi", "Classic Rock"], ["I'm Gonna Be (500 Miles)", "The Proclaimers", "90s to Today"], ["I'm Not Ready", "Jack Fitzgeorge", "Jack Fitzgeorge Originals"], ["I've Just Seen a Face", "The Beatles", "The Beatles"], ["If You Go Down", "Kelsea Ballerini", "Country"], ["Island in the Sun", "Weezer", "Beach & Island"], ["It Ain't Me Babe", "Bob Dylan", "Singer-Songwriters & Folk"], ["It Never Rains In Southern California", "Albert Hammond", "Singer-Songwriters & Folk"], ["It's Five O'Clock Somewhere", "Alan Jackson", "Beach & Island"], ["It's Still Rock And Roll To Me", "Billy Joel", "Classic Rock"], ["Kansas City", "The New Basement Tapes", "Singer-Songwriters & Folk"], ["Knee Deep", "Zac Brown", "Beach & Island"], ["Knockin' on Heaven's Door", "Bob Dylan", "Singer-Songwriters & Folk"], ["Kodachrome", "Paul Simon", "Singer-Songwriters & Folk"], ["Kokomo", "Beach Boys", "Beach & Island"], ["Lady", "Kenny Rogers", "Country"], ["Last Kiss", "Pearl Jam", "90s to Today"], ["Late For the Sky", "Jackson Browne", "Singer-Songwriters & Folk"], ["Learn to Fly", "The Foo Fighters", "90s to Today"], ["Leaving on a Jet Plane", "John Denver", "Singer-Songwriters & Folk"], ["Let Her Cry", "Hootie and the Blowfish", "90s to Today"], ["Let It Be", "The Beatles", "The Beatles"], ["Let Me Down Easy", "Chris Isaak", "Classic Rock"], ["Like a Hurricane", "Neil Young", "Classic Rock"], ["Lodi", "Creedence Clearwater Revival", "Classic Rock"], ["Long May You Run", "Neil Young", "Classic Rock"], ["Losing My Religion", "R.E.M.", "90s to Today"], ["Love Grows Where My Rosemary Goes", "The Foundations", "Oldies"], ["Love Story", "Taylor Swift", "90s to Today"], ["Lucky", "Jason Mraz", "90s to Today"], ["Lucky Man", "Emerson, Lake and Palmer", "Classic Rock"], ["Margaritaville", "Jimmy Buffett", "Beach & Island"], ["Mary Jane's Last Dance", "Tom Petty", "Classic Rock"], ["Meeting Across the River", "Bruce Springsteen", "Classic Rock"], ["Metal Guru", "T. Rex", "Classic Rock"], ["The Middle", "Jimmy Eat World", "90s to Today"], ["Midnight Special", "Creedence Clearwater Revival", "Classic Rock"], ["Mile Marker Seven", "Jack Fitzgeorge", "Jack Fitzgeorge Originals"], ["Moonshadow", "Cat Stevens", "Singer-Songwriters & Folk"], ["Mother's Little Helper", "The Rolling Stones", "Classic Rock"], ["Motorcycle Drive By", "Zach Bryan", "Country"], ["Mr. Brightside", "The Killers", "90s to Today"], ["Mr. Jones", "Counting Crows", "90s to Today"], ["My Church", "Maren Morris", "Country"], ["My Old Friend", "John Hiatt", "Singer-Songwriters & Folk"], ["Never Been to Spain", "Three Dog Night", "Classic Rock"], ["A New Perspective", "Jack Fitzgeorge", "Jack Fitzgeorge Originals"], ["New Shoes", "Paolo Nutini", "90s to Today"], ["The Night They Drove Old Dixie Down", "The Band", "Classic Rock"], ["Nine Ball", "Zach Bryan", "Country"], ["Octopus' Garden", "The Beatles", "The Beatles"], ["Oklahoma Smokeshow", "Zach Bryan", "Country"], ["Once Again", "Jack Fitzgeorge", "Jack Fitzgeorge Originals"], ["One Day", "Chris Isaak", "Classic Rock"], ["One Tin Soldier", "Theme from Billy Jack", "Oldies"], ["Only Love Can Break Your Heart", "Neil Young", "Classic Rock"], ["Only The Good Die Young", "Billy Joel", "Classic Rock"], ["Operator", "Jim Croce", "Singer-Songwriters & Folk"], ["Our Song", "Taylor Swift", "90s to Today"], ["Paint It Black", "The Rolling Stones", "Classic Rock"], ["Passenger Side", "Wilco", "Singer-Songwriters & Folk"], ["Peaceful Easy Feeling", "The Eagles", "Classic Rock"], ["Pencil Thin Mustache", "Jimmy Buffett", "Beach & Island"], ["People Are Crazy", "Billy Currington", "Country"], ["Perfect", "Ed Sheeran", "90s to Today"], ["Perfectly Good Guitar", "John Hiatt", "Singer-Songwriters & Folk"], ["Pick Up the Change", "Wilco", "Singer-Songwriters & Folk"], ["Pink Pony Club", "Chappell Roan", "90s to Today"], ["A Pirate Looks At Forty", "Jimmy Buffett", "Beach & Island"], ["Pretty Good at Drinking Beer", "Billy Currington", "Country"], ["Raindrops Keep Fallin' On My Head", "BJ Thomas", "Oldies"], ["Ramblin' Man", "Allman Brothers", "Classic Rock"], ["Rave On", "Buddy Holly", "Oldies"], ["Read My Mind", "The Killers", "90s to Today"], ["Redneck Friend", "Jackson Browne", "Singer-Songwriters & Folk"], ["Revival", "Zach Bryan", "Country"], ["Richard Cory", "Paul McCartney & Wings", "Classic Rock"], ["Ringling, Ringling", "Jimmy Buffett", "Beach & Island"], ["Ripple", "The Grateful Dead", "Classic Rock"], ["The River", "Bruce Springsteen", "Classic Rock"], ["Rock Me on the Water", "Jackson Browne", "Singer-Songwriters & Folk"], ["Rockin' in the Free World", "Neil Young", "Classic Rock"], ["Roll Over Beethoven", "Electric Light Orchestra", "Classic Rock"], ["Rubber Band Man", "The Spinners", "Oldies"], ["Ruby Tuesday", "The Rolling Stones", "Classic Rock"], ["Runaround Sue", "Dion", "Oldies"], ["Runaway", "Dion", "Oldies"], ["Runaway Train", "Soul Asylum", "90s to Today"], ["Runnin' Down a Dream", "Tom Petty", "Classic Rock"], ["Sandman", "America", "Singer-Songwriters & Folk"], ["Say Hey I Love You", "Michael Franti", "Beach & Island"], ["Shattered", "O.A.R.", "90s to Today"], ["Ship Bottom Brews", "Jack Fitzgeorge", "Jack Fitzgeorge Originals"], ["Signs", "Five Man Electrical Band", "Classic Rock"], ["Sister Goldenhair", "America", "Singer-Songwriters & Folk"], ["Sitting, Waiting, Wishing", "Jack Johnson", "Beach & Island"], ["The Slider", "T. Rex", "Classic Rock"], ["Slip Sliding Away", "Paul Simon", "Singer-Songwriters & Folk"], ["Sloop John B", "The Beach Boys", "Beach & Island"], ["Solitary Man", "Neil Diamond", "Singer-Songwriters & Folk"], ["Somebody Told Me", "The Killers", "90s to Today"], ["Somebody's Baby", "Jackson Browne", "Singer-Songwriters & Folk"], ["Son of a Son of a Sailor", "Jimmy Buffett", "Beach & Island"], ["The Sound of Sunshine", "Michael Franti", "Beach & Island"], ["Space Oddity", "David Bowie", "Classic Rock"], ["Squeeze Box", "The Who", "Classic Rock"], ["Stand by Your Man", "Lyle Lovett", "Country"], ["Stick Season", "Noah Kahan", "Singer-Songwriters & Folk"], ["Still the Same", "Bob Seger", "Classic Rock"], ["Stuck In The Middle With You", "Stealers Wheel", "Classic Rock"], ["Such Great Heights", "Postal Service", "90s to Today"], ["Suffragette City", "David Bowie", "Classic Rock"], ["Summer of '69", "Bryan Adams", "Classic Rock"], ["Sunny Afternoon", "The Kinks", "Classic Rock"], ["Surfin' Safari", "The Beach Boys", "Beach & Island"], ["Sweet Baby James", "James Taylor", "Singer-Songwriters & Folk"], ["Sweet Caroline", "Neil Diamond", "Singer-Songwriters & Folk"], ["Sweet Home Alabama / All Summer Long", "Lynyrd Skynyrd / Kid Rock", "Classic Rock"], ["Sylvia's Mother", "Dr. Hook & the Medicine Show", "Classic Rock"], ["Take it Easy", "The Eagles", "Classic Rock"], ["Tequila Sunrise", "The Eagles", "Classic Rock"], ["Thank You", "Led Zeppelin", "Classic Rock"], ["That'll Be the Day", "Buddy Holly", "Oldies"], ["This Magic Moment", "Jay & the Americans", "Oldies"], ["Three Little Birds", "Bob Marley", "Beach & Island"], ["Thunder Road", "Bruce Springsteen", "Classic Rock"], ["Thursday", "Jim Croce", "Singer-Songwriters & Folk"], ["The Tiki Bar is Open", "John Hiatt", "Beach & Island"], ["Till There Was You", "The Beatles", "The Beatles"], ["The Times They Are A-changin'", "Bob Dylan", "Singer-Songwriters & Folk"], ["To Love Somebody", "The Bee Gees", "Oldies"], ["Toes", "Zac Brown", "Beach & Island"], ["Tucson Too Late", "Jordan Davis", "Country"], ["Twist", "Chubby Checker", "Oldies"], ["Under My Thumb", "The Rolling Stones", "Classic Rock"], ["Under the Boardwalk", "The Drifters", "Beach & Island"], ["Up On Cripple Creek", "The Band", "Classic Rock"], ["Viva La Vida", "Coldplay", "90s to Today"], ["Wagon Wheel", "Old Crow Medicine Show", "Country"], ["The Wanderer", "Dion", "Oldies"], ["Watching the River Run", "Loggins & Messina", "Singer-Songwriters & Folk"], ["The Way", "Fastball", "90s to Today"], ["The Weight", "The Band", "Classic Rock"], ["West Nashville Grand Ballroom Gown", "Jimmy Buffett", "Beach & Island"], ["What a Wonderful World", "Louis Armstrong", "Oldies"], ["What I Got", "Sublime", "Beach & Island"], ["When It Rains It Pours", "Luke Combs", "Country"], ["Who'll Stop the Rain", "Creedence Clearwater Revival", "Classic Rock"], ["Why Don't We Get Drunk", "Jimmy Buffett", "Beach & Island"], ["Wicked Game", "Chris Isaak", "Classic Rock"], ["Wild Horses", "The Rolling Stones", "Classic Rock"], ["Wild Night", "Van Morrison", "Classic Rock"], ["Wild World", "Cat Stevens", "Singer-Songwriters & Folk"], ["Will You Still Love Me Tomorrow", "Carole King", "Singer-Songwriters & Folk"], ["With a Little Help From My Friends", "The Beatles", "The Beatles"], ["Wonderful Tonight", "Eric Clapton", "Classic Rock"], ["Wonderwall", "Oasis", "90s to Today"], ["Wooden Ships", "Crosby, Stills & Nash", "Singer-Songwriters & Folk"], ["The Wreck of the Edmund Fitzgerald", "Gordon Lightfoot", "Singer-Songwriters & Folk"], ["Year of the Cat", "Al Stewart", "Classic Rock"], ["Yer So Bad", "Tom Petty", "Classic Rock"], ["Yesterday", "The Beatles", "The Beatles"], ["You Belong With Me", "Taylor Swift", "90s to Today"], ["You Can't Always Get What You Want", "The Rolling Stones", "Classic Rock"], ["You May Be Right", "Billy Joel", "Classic Rock"], ["You're So Vain", "Carly Simon", "Singer-Songwriters & Folk"], ["Your Cheating Heart", "Hank Williams", "Country"], ["Your Song", "Elton John", "Classic Rock"], ["Ziggy Stardust", "David Bowie", "Classic Rock"]];
+const GROUPS = ["Jack Fitzgeorge Originals","Beach & Island","Classic Rock","The Beatles","Singer-Songwriters & Folk","Country","Oldies","90s to Today"];
+const isOrig = a => a.indexOf("Jack Fitzgeorge") === 0;
+document.getElementById("songCount").textContent = SONGS.length;
+document.getElementById("origCount").textContent = SONGS.filter(x => isOrig(x[1])).length;
+const wrapG = document.getElementById("songGroups"), sInput = document.getElementById("songSearch"), oBtn = document.getElementById("openAll");
+const groupEls = {};
+GROUPS.forEach(g => {
+  const d = document.createElement("details");
+  d.className = "group" + (g === GROUPS[0] ? " orig" : "");
+  if (g === GROUPS[0]) d.open = true;
+  const sm = document.createElement("summary");
+  const nm = document.createElement("span"); nm.textContent = g;
+  const n = document.createElement("span"); n.className = "n";
+  sm.append(nm, n);
+  const ul = document.createElement("ul"); ul.className = "songlist";
+  d.append(sm, ul); wrapG.appendChild(d);
+  groupEls[g] = { d, ul, n };
+});
+function renderSongs() {
+  const q = sInput.value.trim().toLowerCase();
+  let total = 0;
+  GROUPS.forEach(g => {
+    const { d, ul, n } = groupEls[g];
+    ul.innerHTML = "";
+    const rows = SONGS.filter(x => x[2] === g && (!q || (x[0] + " " + x[1]).toLowerCase().indexOf(q) !== -1));
+    rows.forEach(([t, a]) => {
+      const li = document.createElement("li");
+      const ts = document.createElement("span"); ts.className = "t"; ts.textContent = t;
+      const as = document.createElement("span"); as.className = "a"; as.textContent = a;
+      li.append(ts, as); ul.appendChild(li);
+    });
+    n.textContent = rows.length + (rows.length === 1 ? " song" : " songs");
+    d.hidden = rows.length === 0;
+    if (q) d.open = rows.length > 0;
+    total += rows.length;
+  });
+  document.getElementById("noSongs").hidden = total > 0;
+}
+let lastQ = "";
+sInput.addEventListener("input", () => {
+  const q = sInput.value.trim();
+  if (!q && lastQ) GROUPS.forEach((g, k) => groupEls[g].d.open = k === 0 || oBtn.getAttribute("aria-pressed") === "true");
+  lastQ = q; renderSongs();
+});
+oBtn.addEventListener("click", () => {
+  const on = oBtn.getAttribute("aria-pressed") !== "true";
+  oBtn.setAttribute("aria-pressed", on ? "true" : "false");
+  oBtn.textContent = on ? "Close all" : "Open all";
+  GROUPS.forEach((g, k) => groupEls[g].d.open = on || k === 0);
+});
+renderSongs();
+</script>
+</body>
+</html>

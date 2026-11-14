@@ -1,0 +1,42 @@
+[
+  {
+    "video": "/media/video-8.mp4",
+    "caption": "",
+    "poster": "/media/video-8-cover.jpg"
+  },
+  {
+    "video": "/media/video-7.mp4",
+    "caption": "",
+    "poster": "/media/video-7-cover.jpg"
+  },
+  {
+    "video": "/media/video-6.mp4",
+    "caption": "",
+    "poster": "/media/video-6-cover.jpg"
+  },
+  {
+    "video": "/media/video-5.mp4",
+    "caption": "",
+    "poster": "/media/video-5-cover.jpg"
+  },
+  {
+    "video": "/media/video-4.mp4",
+    "caption": "",
+    "poster": "/media/video-4-cover.jpg"
+  },
+  {
+    "video": "/media/video-3.mp4",
+    "caption": "",
+    "poster": "/media/video-3-cover.jpg"
+  },
+  {
+    "video": "/media/video-2.mp4",
+    "caption": "",
+    "poster": "/media/video-2-cover.jpg"
+  },
+  {
+    "video": "/media/video-1.mp4",
+    "caption": "",
+    "poster": "/media/video-1-cover.jpg"
+  }
+]
